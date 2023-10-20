@@ -1,0 +1,4 @@
+menuconfig LIBUSOCKETS
+	bool "libusockets - the non-blocking, thread-per-CPU foundation library used by µWebSockets"
+    select LIBOPENSSL
+	default n

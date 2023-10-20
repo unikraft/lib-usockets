@@ -1,0 +1,83 @@
+#  libusockets Makefile.uk
+#
+#  Authors: Juan Cruz Viotti <jv@jviotti.com>
+#
+#  Copyright (c) 2023, Unikraft GmbH and The Unikraft Authors.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the names of its
+#     contributors may be used to endorse or promote products derived from
+#     this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+################################################################################
+# Library registration
+################################################################################
+$(eval $(call addlib_s,libusockets,$(CONFIG_LIBUSOCKETS)))
+
+################################################################################
+# Sources
+################################################################################
+LIBUSOCKETS_VERSION=0.8.6
+LIBUSOCKETS_URL=https://github.com/uNetworking/uSockets/archive/refs/tags/v$(LIBUSOCKETS_VERSION).tar.gz
+$(eval $(call fetch,libusockets,$(LIBUSOCKETS_URL)))
+
+################################################################################
+# Helpers
+################################################################################
+LIBUSOCKETS_SRC = $(LIBUSOCKETS_ORIGIN)/uSockets-$(LIBUSOCKETS_VERSION)/src
+
+################################################################################
+# Library includes
+################################################################################
+CINCLUDES-$(CONFIG_LIBUSOCKETS) += -I$(LIBUSOCKETS_SRC)
+CXXINCLUDES-$(CONFIG_LIBUSOCKETS) += -I$(LIBUSOCKETS_SRC)
+
+################################################################################
+# Global flags
+################################################################################
+LIBUSOCKETS_CFLAGS-y += -DLIBUS_USE_OPENSSL
+LIBUSOCKETS_CFLAGS-y += -DLIBUS_USE_EPOLL
+
+################################################################################
+# uSockets code
+################################################################################
+
+# Base
+LIBUSOCKETS_SRCS-y += $(LIBUSOCKETS_SRC)/bsd.c
+LIBUSOCKETS_SRCS-y += $(LIBUSOCKETS_SRC)/context.c
+LIBUSOCKETS_SRCS-y += $(LIBUSOCKETS_SRC)/loop.c
+LIBUSOCKETS_SRCS-y += $(LIBUSOCKETS_SRC)/socket.c
+LIBUSOCKETS_SRCS-y += $(LIBUSOCKETS_SRC)/udp.c
+LIBUSOCKETS_SRCS-y += $(LIBUSOCKETS_SRC)/crypto/openssl.c
+LIBUSOCKETS_SRCS-y += $(LIBUSOCKETS_SRC)/crypto/sni_tree.cpp
+LIBUSOCKETS_SRCS-y += $(LIBUSOCKETS_SRC)/quic.c
+LIBUSOCKETS_SRCS-y += $(LIBUSOCKETS_SRC)/quic.h
+
+# Event loops
+LIBUSOCKETS_SRCS-y += $(LIBUSOCKETS_SRC)/eventing/epoll_kqueue.c
+LIBUSOCKETS_SRCS-y += $(LIBUSOCKETS_SRC)/io_uring/io_context.c
+LIBUSOCKETS_SRCS-y += $(LIBUSOCKETS_SRC)/io_uring/io_loop.c
+LIBUSOCKETS_SRCS-y += $(LIBUSOCKETS_SRC)/io_uring/io_socket.c
+LIBUSOCKETS_SRCS-y += $(LIBUSOCKETS_SRC)/eventing/gcd.c
+LIBUSOCKETS_SRCS-y += $(LIBUSOCKETS_SRC)/eventing/libuv.c
